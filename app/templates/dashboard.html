@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Solar Sync{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1><i class="fas fa-tachometer-alt"></i> Solar System Dashboard</h1>
+        <div class="status-indicator">
+            <span class="status-dot online"></span>
+            <span class="status-text">System Online</span>
+        </div>
+    </div>
+
+    <!-- Real-time Metrics -->
+    <div class="metrics-grid">
+        <!-- Solar Power -->
+        <div class="metric-card solar">
+            <div class="metric-icon">
+                <i class="fas fa-solar-panel"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Solar Power</h3>
+                <div class="metric-value" id="solar-power">--</div>
+                <div class="metric-unit">Watts</div>
+            </div>
+        </div>
+
+        <!-- Battery Status -->
+        <div class="metric-card battery">
+            <div class="metric-icon">
+                <i class="fas fa-battery-three-quarters"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Battery</h3>
+                <div class="metric-value" id="battery-soc">--</div>
+                <div class="metric-unit">% SOC</div>
+                <div class="metric-sub" id="battery-power">-- W</div>
+            </div>
+        </div>
+
+        <!-- Load Power -->
+        <div class="metric-card load">
+            <div class="metric-icon">
+                <i class="fas fa-plug"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Load Power</h3>
+                <div class="metric-value" id="load-power">--</div>
+                <div class="metric-unit">Watts</div>
+            </div>
+        </div>
+
+        <!-- Grid Power -->
+        <div class="metric-card grid">
+            <div class="metric-icon">
+                <i class="fas fa-network-wired"></i>
+            </div>
+            <div class="metric-content">
+                <h3>Grid Power</h3>
+                <div class="metric-value" id="grid-power">--</div>
+                <div class="metric-unit">Watts</div>
+                <div class="metric-sub" id="grid-direction">--</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="status-grid">
+        <!-- Temperature -->
+        <div class="status-card">
+            <h3><i class="fas fa-thermometer-half"></i> System Temperature</h3>
+            <div class="status-value" id="system-temp">--°C</div>
+        </div>
+
+        <!-- Efficiency -->
+        <div class="status-card">
+            <h3><i class="fas fa-percentage"></i> System Efficiency</h3>
+            <div class="status-value" id="system-efficiency">--%</div>
+        </div>
+
+        <!-- Daily Production -->
+        <div class="status-card">
+            <h3><i class="fas fa-sun"></i> Today's Production</h3>
+            <div class="status-value" id="daily-production">-- kWh</div>
+        </div>
+
+        <!-- Last Update -->
+        <div class="status-card">
+            <h3><i class="fas fa-clock"></i> Last Update</h3>
+            <div class="status-value" id="last-update">--</div>
+        </div>
+    </div>
+
+    <!-- Real-time Chart -->
+    <div class="chart-container">
+        <div class="chart-header">
+            <h3><i class="fas fa-chart-line"></i> Real-time Power Flow</h3>
+            <div class="chart-controls">
+                <button class="btn btn-sm" id="chart-toggle">Pause</button>
+            </div>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="power-chart"></canvas>
+        </div>
+    </div>
+
+    <!-- Recent Events -->
+    <div class="events-container">
+        <div class="events-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Recent Events</h3>
+        </div>
+        <div class="events-list" id="events-list">
+            <div class="event-item">
+                <div class="event-icon info">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="event-content">
+                    <div class="event-message">System started successfully</div>
+                    <div class="event-time">Just now</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Dashboard-specific JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize dashboard
+        initDashboard();
+    });
+</script>
+{% endblock %}

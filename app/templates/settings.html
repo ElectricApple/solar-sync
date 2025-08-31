@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Solar Sync{% endblock %}
+
+{% block content %}
+<div class="settings-page">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1><i class="fas fa-cog"></i> System Settings</h1>
+        <div class="settings-actions">
+            <button class="btn btn-primary" id="save-settings">Save All</button>
+            <button class="btn btn-secondary" id="reset-settings">Reset to Defaults</button>
+        </div>
+    </div>
+
+    <!-- System Information -->
+    <div class="system-info-section">
+        <div class="section-header">
+            <h2><i class="fas fa-info-circle"></i> System Information</h2>
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>System Name</h3>
+                <div class="info-value" id="system-name">Solar Sync</div>
+            </div>
+            
+            <div class="info-card">
+                <h3>Version</h3>
+                <div class="info-value" id="system-version">1.0.0</div>
+            </div>
+            
+            <div class="info-card">
+                <h3>Environment</h3>
+                <div class="info-value" id="environment">Development</div>
+            </div>
+            
+            <div class="info-card">
+                <h3>Hardware Mode</h3>
+                <div class="info-value" id="hardware-mode">Simulated</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Settings -->
+    <div class="settings-section">
+        <div class="section-header">
+            <h2><i class="fas fa-sliders-h"></i> Configuration</h2>
+        </div>
+        
+        <div class="settings-form">
+            <div class="form-group">
+                <label for="websocket-interval">WebSocket Update Interval (seconds)</label>
+                <input type="number" id="websocket-interval" class="form-control" min="1" max="60" value="2">
+                <small class="form-text">How often to send real-time updates (1-60 seconds)</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="max-chart-points">Maximum Chart Points</label>
+                <input type="number" id="max-chart-points" class="form-control" min="100" max="10000" value="5000">
+                <small class="form-text">Maximum number of data points to display in charts</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="log-level">Log Level</label>
+                <select id="log-level" class="form-control">
+                    <option value="DEBUG">Debug</option>
+                    <option value="INFO">Info</option>
+                    <option value="WARNING">Warning</option>
+                    <option value="ERROR">Error</option>
+                </select>
+                <small class="form-text">Level of detail in system logs</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="database-url">Database URL</label>
+                <input type="text" id="database-url" class="form-control" readonly>
+                <small class="form-text">Database connection (read-only)</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hardware Settings -->
+    <div class="settings-section">
+        <div class="section-header">
+            <h2><i class="fas fa-microchip"></i> Hardware Configuration</h2>
+        </div>
+        
+        <div class="settings-form">
+            <div class="form-group">
+                <label for="rs485-device">RS485 Device</label>
+                <input type="text" id="rs485-device" class="form-control" value="/dev/ttyUSB0">
+                <small class="form-text">RS485 serial device path</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="rs485-baudrate">RS485 Baud Rate</label>
+                <select id="rs485-baudrate" class="form-control">
+                    <option value="9600">9600</option>
+                    <option value="19200">19200</option>
+                    <option value="38400">38400</option>
+                    <option value="57600">57600</option>
+                    <option value="115200">115200</option>
+                </select>
+                <small class="form-text">Serial communication speed</small>
+            </div>
+            
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" id="simulate-hardware" class="form-check-input">
+                    <label class="form-check-label" for="simulate-hardware">
+                        Simulate Hardware (for development)
+                    </label>
+                </div>
+                <small class="form-text">Use simulated data instead of real hardware</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Settings -->
+    <div class="settings-section">
+        <div class="section-header">
+            <h2><i class="fas fa-plus-circle"></i> Custom Settings</h2>
+            <button class="btn btn-sm btn-primary" id="add-setting">Add Setting</button>
+        </div>
+        
+        <div class="custom-settings" id="custom-settings">
+            <!-- Custom settings will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Backup & Restore -->
+    <div class="settings-section">
+        <div class="section-header">
+            <h2><i class="fas fa-database"></i> Backup & Restore</h2>
+        </div>
+        
+        <div class="backup-actions">
+            <div class="form-group">
+                <label for="backup-file">Backup File</label>
+                <input type="file" id="backup-file" class="form-control" accept=".json">
+                <small class="form-text">Select a settings backup file to restore</small>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn btn-success" id="export-settings">
+                    <i class="fas fa-download"></i> Export Settings
+                </button>
+                <button class="btn btn-warning" id="import-settings">
+                    <i class="fas fa-upload"></i> Import Settings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Actions -->
+    <div class="settings-section">
+        <div class="section-header">
+            <h2><i class="fas fa-tools"></i> System Actions</h2>
+        </div>
+        
+        <div class="system-actions">
+            <div class="button-group">
+                <button class="btn btn-info" id="test-connection">
+                    <i class="fas fa-network-wired"></i> Test Hardware Connection
+                </button>
+                <button class="btn btn-secondary" id="clear-cache">
+                    <i class="fas fa-broom"></i> Clear Cache
+                </button>
+                <button class="btn btn-warning" id="restart-service">
+                    <i class="fas fa-redo"></i> Restart Service
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Settings page specific JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize settings page
+        initSettingsPage();
+    });
+</script>
+{% endblock %}

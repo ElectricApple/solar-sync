@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  solar-sync-dev:
+    build:
+      context: .
+      dockerfile: deployment/docker/Dockerfile.dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app              # Hot reload
+      - ./data:/app/data    # Persistent data
+    environment:
+      - ENVIRONMENT=development
+      - SIMULATE_HARDWARE=true
+      - LOG_LEVEL=DEBUG
+      - WEBSOCKET_UPDATE_INTERVAL=2
+    networks:
+      - solar-sync-dev
+    restart: unless-stopped
+
+  # Optional: Database admin interface
+  sqlite-web:
+    image: coleifer/sqlite-web
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data
+    command: sqlite-web --host 0.0.0.0 --port 8080 /data/solar-sync-dev.db
+    networks:
+      - solar-sync-dev
+    depends_on:
+      - solar-sync-dev
+
+networks:
+  solar-sync-dev:
+    driver: bridge
