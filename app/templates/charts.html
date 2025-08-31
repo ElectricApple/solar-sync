@@ -2,147 +2,627 @@
 
 {% block title %}Charts - Solar Sync{% endblock %}
 
+{% block extra_css %}
+<style>
+.charts-container {
+    padding: var(--spacing-xl);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.chart-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-2xl);
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+}
+
+.time-period-selector {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.period-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.period-btn:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--primary-color);
+}
+
+.period-btn.active {
+    background: var(--primary-color);
+    color: var(--bg-primary);
+    border-color: var(--primary-color);
+}
+
+.chart-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+}
+
+.chart-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-2xl);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.chart-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+}
+
+.chart-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.chart-info {
+    display: flex;
+    gap: var(--spacing-lg);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: var(--spacing-2xl);
+    margin-bottom: var(--spacing-3xl);
+}
+
+.charts-grid .chart-card {
+    margin-bottom: 0;
+}
+
+.charts-grid .chart-container {
+    height: 300px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.chart-statistics {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    margin-top: var(--spacing-2xl);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-lg);
+}
+
+.stat-item {
+    text-align: center;
+    padding: var(--spacing-lg);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.1rem;
+    border-radius: var(--radius-lg);
+    z-index: 10;
+}
+
+.error-message {
+    background: var(--error-color);
+    color: white;
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-lg);
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .charts-container {
+        padding: var(--spacing-lg);
+    }
+    
+    .chart-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .time-period-selector {
+        justify-content: center;
+    }
+    
+    .chart-actions {
+        justify-content: center;
+    }
+    
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="charts-page">
-    <!-- Header -->
-    <div class="dashboard-header">
-        <h1><i class="fas fa-chart-line"></i> Solar Analytics & Charts</h1>
-        <div class="chart-controls">
-            <button class="btn btn-primary btn-sm" id="refresh-charts">
-                <i class="fas fa-sync-alt"></i>
-                Refresh
+<div class="charts-container">
+    <!-- Chart Controls -->
+    <div class="chart-controls">
+        <div class="time-period-selector">
+            <button class="period-btn active" data-period="live">Live</button>
+            <button class="period-btn" data-period="today">Today</button>
+            <button class="period-btn" data-period="week">This Week</button>
+            <button class="period-btn" data-period="month">This Month</button>
+            <button class="period-btn" data-period="custom">Custom</button>
+        </div>
+        
+        <div class="chart-actions">
+            <button class="btn btn-secondary" id="export-data">
+                <i class="fas fa-download"></i> Export Data
+            </button>
+            <button class="btn btn-secondary" id="export-image">
+                <i class="fas fa-image"></i> Export Image
+            </button>
+            <button class="btn btn-primary" id="refresh-charts">
+                <i class="fas fa-sync-alt"></i> Refresh
             </button>
         </div>
     </div>
-
-    <!-- Chart Controls -->
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title"><i class="fas fa-sliders-h"></i> Chart Controls</h3>
-        </div>
-        <div class="card-body">
-            <div class="chart-controls-form">
-                <div class="control-row">
+    
+    <!-- Custom Date Range (Hidden by default) -->
+    <div class="custom-date-range" id="custom-date-range" style="display: none;">
+        <div class="card">
+            <div class="card-body">
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="chart-type">Chart Type</label>
-                        <select id="chart-type" class="form-control">
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                        </select>
+                        <label for="custom-start">Start Date:</label>
+                        <input type="datetime-local" id="custom-start" class="form-control" />
                     </div>
-                    
                     <div class="form-group">
-                        <label for="date-selector">Date</label>
-                        <input type="date" id="date-selector" class="form-control">
+                        <label for="custom-end">End Date:</label>
+                        <input type="datetime-local" id="custom-end" class="form-control" />
                     </div>
-                    
                     <div class="form-group">
                         <label>&nbsp;</label>
-                        <button class="btn btn-primary" id="load-chart-data">
-                            <i class="fas fa-chart-bar"></i>
-                            Load Data
+                        <button class="btn btn-primary" id="apply-custom-range">
+                            <i class="fas fa-check"></i> Apply
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Analytics Summary -->
-    <div class="status-grid">
-        <div class="status-card">
-            <h3><i class="fas fa-sun"></i> Today's Production</h3>
-            <div class="status-value" id="today-production">-- kWh</div>
-        </div>
-        
-        <div class="status-card">
-            <h3><i class="fas fa-plug"></i> Today's Consumption</h3>
-            <div class="status-value" id="today-consumption">-- kWh</div>
-        </div>
-        
-        <div class="status-card">
-            <h3><i class="fas fa-percentage"></i> Efficiency</h3>
-            <div class="status-value" id="today-efficiency">--%</div>
-        </div>
-        
-        <div class="status-card">
-            <h3><i class="fas fa-bolt"></i> Peak Power</h3>
-            <div class="status-value" id="peak-power">-- kW</div>
-        </div>
+    
+    <!-- Error Message -->
+    <div class="error-message" id="error-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span id="error-text">An error occurred while loading chart data.</span>
     </div>
-
-    <!-- Main Chart -->
-    <div class="chart-container">
-        <div class="chart-header">
-            <h3><i class="fas fa-chart-area"></i> Power Flow Analysis</h3>
-            <div class="chart-controls">
-                <button class="btn btn-secondary btn-sm" id="chart-legend-toggle">
-                    <i class="fas fa-eye"></i>
-                    Toggle Legend
-                </button>
-                <button class="btn btn-success btn-sm" id="chart-export">
-                    <i class="fas fa-download"></i>
-                    Export
-                </button>
-            </div>
-        </div>
-        <div class="chart-wrapper">
-            <canvas id="analytics-chart"></canvas>
-        </div>
-    </div>
-
-    <!-- Additional Charts Grid -->
+    
+    <!-- Charts Grid -->
     <div class="charts-grid">
-        <!-- Battery SOC Chart -->
-        <div class="chart-container">
+        <!-- Power Flow Chart -->
+        <div class="chart-card full-width">
             <div class="chart-header">
-                <h3><i class="fas fa-battery-three-quarters"></i> Battery State of Charge</h3>
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-area"></i> Power Flow Analysis
+                </h3>
+                <div class="chart-info">
+                    <span class="data-points" id="power-flow-points">Loading...</span>
+                </div>
             </div>
-            <div class="chart-wrapper">
-                <canvas id="battery-chart"></canvas>
+            <div class="chart-container">
+                <div class="loading-overlay" id="power-flow-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading power flow data...
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="power-flow-chart"></canvas>
+                </div>
             </div>
         </div>
-
-        <!-- Temperature Chart -->
-        <div class="chart-container">
+        
+        <!-- Battery Performance Chart -->
+        <div class="chart-card">
             <div class="chart-header">
-                <h3><i class="fas fa-thermometer-half"></i> System Temperature</h3>
+                <h3 class="chart-title">
+                    <i class="fas fa-battery-three-quarters"></i> Battery Performance
+                </h3>
+                <div class="chart-info">
+                    <span class="battery-cycles" id="battery-cycles">0 cycles</span>
+                </div>
             </div>
-            <div class="chart-wrapper">
-                <canvas id="temperature-chart"></canvas>
+            <div class="chart-container">
+                <div class="loading-overlay" id="battery-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading battery data...
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="battery-performance-chart"></canvas>
+                </div>
             </div>
         </div>
-
-        <!-- Efficiency Chart -->
-        <div class="chart-container">
+        
+        <!-- Energy Summary Chart -->
+        <div class="chart-card">
             <div class="chart-header">
-                <h3><i class="fas fa-percentage"></i> System Efficiency</h3>
+                <h3 class="chart-title">
+                    <i class="fas fa-chart-bar"></i> Energy Summary
+                </h3>
+                <div class="chart-info">
+                    <span class="total-generated" id="total-generated">0 kWh generated</span>
+                    <span class="total-consumed" id="total-consumed">0 kWh consumed</span>
+                </div>
             </div>
-            <div class="chart-wrapper">
-                <canvas id="efficiency-chart"></canvas>
+            <div class="chart-container">
+                <div class="loading-overlay" id="energy-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading energy data...
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="energy-summary-chart"></canvas>
+                </div>
             </div>
         </div>
-
-        <!-- Energy Flow Chart -->
-        <div class="chart-container">
+        
+        <!-- System Efficiency Chart -->
+        <div class="chart-card">
             <div class="chart-header">
-                <h3><i class="fas fa-project-diagram"></i> Energy Flow</h3>
+                <h3 class="chart-title">
+                    <i class="fas fa-percentage"></i> System Efficiency
+                </h3>
+                <div class="chart-info">
+                    <span class="avg-efficiency" id="avg-efficiency">0% average</span>
+                </div>
             </div>
-            <div class="chart-wrapper">
-                <canvas id="energy-flow-chart"></canvas>
+            <div class="chart-container">
+                <div class="loading-overlay" id="efficiency-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading efficiency data...
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="efficiency-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chart Statistics -->
+    <div class="chart-statistics">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-line"></i> Statistics Summary
+        </h3>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-label">Peak Solar Power</div>
+                <div class="stat-value" id="peak-solar">0W</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Total Energy Generated</div>
+                <div class="stat-value" id="total-energy">0 kWh</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Average Efficiency</div>
+                <div class="stat-value" id="avg-system-efficiency">0%</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Battery Cycles</div>
+                <div class="stat-value" id="total-battery-cycles">0</div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_scripts %}
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', path='js/chart-manager.js') }}"></script>
+
 <script>
-    // Charts page specific JavaScript
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize charts page
-        initChartsPage();
+document.addEventListener('DOMContentLoaded', function() {
+    let currentPeriod = 'live';
+    let currentStart = null;
+    let currentEnd = null;
+    
+    // Initialize charts
+    loadCharts(currentPeriod);
+    
+    // Period selector event listeners
+    document.querySelectorAll('.period-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Update active button
+            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            currentPeriod = this.dataset.period;
+            
+            // Show/hide custom date range
+            const customRange = document.getElementById('custom-date-range');
+            if (currentPeriod === 'custom') {
+                customRange.style.display = 'block';
+            } else {
+                customRange.style.display = 'none';
+                loadCharts(currentPeriod);
+            }
+        });
     });
+    
+    // Custom date range application
+    document.getElementById('apply-custom-range').addEventListener('click', function() {
+        const startDate = document.getElementById('custom-start').value;
+        const endDate = document.getElementById('custom-end').value;
+        
+        if (startDate && endDate) {
+            currentStart = startDate;
+            currentEnd = endDate;
+            loadCharts('custom', startDate, endDate);
+        } else {
+            showError('Please select both start and end dates');
+        }
+    });
+    
+    // Export functionality
+    document.getElementById('export-data').addEventListener('click', function() {
+        exportChartsData(currentPeriod);
+    });
+    
+    document.getElementById('export-image').addEventListener('click', function() {
+        exportChartsAsImages();
+    });
+    
+    document.getElementById('refresh-charts').addEventListener('click', function() {
+        loadCharts(currentPeriod, currentStart, currentEnd);
+    });
+    
+    // Start real-time updates for live view
+    if (currentPeriod === 'live') {
+        window.solarChartManager.startRealTimeUpdates();
+    }
+});
+
+async function loadCharts(period, customStart = null, customEnd = null) {
+    try {
+        hideError();
+        
+        // Show loading states
+        showLoading('power-flow-loading');
+        showLoading('battery-loading');
+        showLoading('energy-loading');
+        showLoading('efficiency-loading');
+        
+        // Load all chart data in parallel
+        const [powerFlowData, batteryData, energyData, efficiencyData, analyticsData] = await Promise.all([
+            fetchChartData('power-flow', period, customStart, customEnd),
+            fetchChartData('battery-performance', period, customStart, customEnd),
+            fetchChartData('energy-summary', period, customStart, customEnd),
+            fetchChartData('system-efficiency', period, customStart, customEnd),
+            fetchChartData('analytics', period, customStart, customEnd)
+        ]);
+        
+        // Create charts
+        window.solarChartManager.createPowerFlowChart('power-flow-chart', powerFlowData);
+        window.solarChartManager.createBatteryPerformanceChart('battery-performance-chart', batteryData);
+        window.solarChartManager.createEnergySummaryChart('energy-summary-chart', energyData);
+        window.solarChartManager.createEfficiencyChart('efficiency-chart', efficiencyData);
+        
+        // Update statistics
+        updateChartStatistics(analyticsData);
+        
+        // Update chart info
+        updateChartInfo(powerFlowData, batteryData, energyData, analyticsData);
+        
+        // Hide loading states
+        hideLoading('power-flow-loading');
+        hideLoading('battery-loading');
+        hideLoading('energy-loading');
+        hideLoading('efficiency-loading');
+        
+        // Start real-time updates for live view
+        if (period === 'live') {
+            window.solarChartManager.startRealTimeUpdates();
+        }
+        
+    } catch (error) {
+        console.error('Error loading charts:', error);
+        showError('Failed to load chart data: ' + error.message);
+        hideAllLoading();
+    }
+}
+
+async function fetchChartData(chartType, period, customStart = null, customEnd = null) {
+    let url = `/charts/${chartType}?period=${period}`;
+    
+    if (period === 'custom' && customStart && customEnd) {
+        url += `&start=${encodeURIComponent(customStart)}&end=${encodeURIComponent(customEnd)}`;
+    }
+    
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch ${chartType} data: ${response.statusText}`);
+    }
+    
+    return await response.json();
+}
+
+function updateChartStatistics(analyticsData) {
+    document.getElementById('peak-solar').textContent = formatPower(analyticsData.peak_solar_power || 0);
+    document.getElementById('total-energy').textContent = formatEnergy(analyticsData.total_solar_energy || 0);
+    document.getElementById('avg-system-efficiency').textContent = formatPercentage(analyticsData.avg_efficiency || 0);
+    document.getElementById('total-battery-cycles').textContent = (analyticsData.battery_cycles || 0).toFixed(1);
+}
+
+function updateChartInfo(powerFlowData, batteryData, energyData, analyticsData) {
+    document.getElementById('power-flow-points').textContent = `${powerFlowData.data_points || 0} data points`;
+    document.getElementById('battery-cycles').textContent = `${batteryData.charge_cycles || 0} cycles`;
+    document.getElementById('total-generated').textContent = `${formatEnergy(analyticsData.total_solar_energy || 0)} generated`;
+    document.getElementById('total-consumed').textContent = `${formatEnergy(analyticsData.total_load_energy || 0)} consumed`;
+    document.getElementById('avg-efficiency').textContent = `${formatPercentage(analyticsData.avg_efficiency || 0)} average`;
+}
+
+function showLoading(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.style.display = 'flex';
+    }
+}
+
+function hideLoading(elementId) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.style.display = 'none';
+    }
+}
+
+function hideAllLoading() {
+    hideLoading('power-flow-loading');
+    hideLoading('battery-loading');
+    hideLoading('energy-loading');
+    hideLoading('efficiency-loading');
+}
+
+function showError(message) {
+    const errorElement = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+    errorText.textContent = message;
+    errorElement.style.display = 'block';
+}
+
+function hideError() {
+    const errorElement = document.getElementById('error-message');
+    errorElement.style.display = 'none';
+}
+
+function formatPower(watts) {
+    if (watts >= 1000) {
+        return (watts / 1000).toFixed(1) + ' kW';
+    }
+    return Math.round(watts) + 'W';
+}
+
+function formatEnergy(kwh) {
+    return kwh.toFixed(2) + ' kWh';
+}
+
+function formatPercentage(value) {
+    return value.toFixed(1) + '%';
+}
+
+async function exportChartsData(period) {
+    try {
+        const response = await fetch(`/charts/export/csv?period=${period}&data_type=energy`);
+        if (!response.ok) {
+            throw new Error('Export failed');
+        }
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `solar-sync-data-${period}-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        
+        showSuccess('Data exported successfully');
+    } catch (error) {
+        console.error('Export failed:', error);
+        showError('Failed to export data: ' + error.message);
+    }
+}
+
+function exportChartsAsImages() {
+    const chartIds = ['power-flow-chart', 'battery-performance-chart', 'energy-summary-chart', 'efficiency-chart'];
+    
+    chartIds.forEach(chartId => {
+        window.solarChartManager.exportChartAsImage(chartId, `${chartId}-${Date.now()}.png`);
+    });
+    
+    showSuccess('Charts exported as images');
+}
+
+function showSuccess(message) {
+    // Create a temporary success message
+    const successDiv = document.createElement('div');
+    successDiv.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #10B981;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        z-index: 1000;
+        font-weight: 500;
+    `;
+    successDiv.textContent = message;
+    document.body.appendChild(successDiv);
+    
+    setTimeout(() => {
+        document.body.removeChild(successDiv);
+    }, 3000);
+}
 </script>
 {% endblock %}

@@ -125,14 +125,14 @@ class ChartDataService:
         """Get system efficiency data for trend analysis"""
         start_time, end_time, _ = self._get_time_range(period)
         
+        # Use existing schema without data_quality column
         query = text("""
             SELECT 
                 timestamp,
-                system_efficiency_percent,
-                data_quality
+                system_efficiency_percent
             FROM energy_data 
             WHERE timestamp BETWEEN :start_time AND :end_time
-            AND data_quality > 0.5
+            AND system_efficiency_percent IS NOT NULL
             ORDER BY timestamp
         """)
         
@@ -145,7 +145,7 @@ class ChartDataService:
         return {
             "timestamps": [row[0] for row in rows],
             "efficiency_data": [row[1] for row in rows],
-            "data_quality": [row[2] for row in rows]
+            "data_quality": [1.0] * len(rows)  # Default data quality
         }
     
     def _get_time_range(self, period: str, custom_start=None, custom_end=None):
