@@ -2,239 +2,6 @@
 
 {% block title %}Dashboard - Solar Sync{% endblock %}
 
-{% block extra_css %}
-<style>
-.dashboard-container {
-    padding: var(--spacing-xl);
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-.status-banner {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
-    margin-bottom: var(--spacing-xl);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--spacing-md);
-}
-
-.hardware-status {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--radius-md);
-    font-weight: 500;
-    font-size: 0.875rem;
-}
-
-.hardware-status.simulation {
-    background: var(--warning-orange);
-    color: var(--black);
-}
-
-.hardware-status.real-devices {
-    background: var(--success-green);
-    color: var(--white);
-}
-
-.hardware-status.error {
-    background: var(--danger-red);
-    color: var(--white);
-}
-
-.device-info {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-}
-
-.device-info i {
-    color: var(--primary-yellow);
-}
-
-.power-flow-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-xl);
-    margin-bottom: var(--spacing-2xl);
-}
-
-.power-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-xl);
-    text-align: center;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.2s ease;
-}
-
-.power-card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-}
-
-.power-card.solar {
-    border-left: 4px solid var(--primary-yellow);
-}
-
-.power-card.battery {
-    border-left: 4px solid var(--success-green);
-}
-
-.power-card.load {
-    border-left: 4px solid var(--info-blue);
-}
-
-.power-card.grid {
-    border-left: 4px solid var(--gray);
-}
-
-.power-icon {
-    font-size: 2rem;
-    margin-bottom: var(--spacing-md);
-}
-
-.power-card.solar .power-icon {
-    color: var(--primary-yellow);
-}
-
-.power-card.battery .power-icon {
-    color: var(--success-green);
-}
-
-.power-card.load .power-icon {
-    color: var(--info-blue);
-}
-
-.power-card.grid .power-icon {
-    color: var(--gray);
-}
-
-.power-value {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: var(--spacing-sm);
-}
-
-.power-unit {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.power-label {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-sm);
-}
-
-.power-trend {
-    font-size: 0.875rem;
-    margin-top: var(--spacing-sm);
-}
-
-.trend-up {
-    color: var(--success-green);
-}
-
-.trend-down {
-    color: var(--danger-red);
-}
-
-.trend-stable {
-    color: var(--text-secondary);
-}
-
-.system-stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: var(--spacing-lg);
-    margin-bottom: var(--spacing-2xl);
-}
-
-.stat-card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-lg);
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    box-shadow: var(--shadow-sm);
-}
-
-.stat-icon {
-    font-size: 1.5rem;
-    color: var(--primary-yellow);
-    width: 40px;
-    text-align: center;
-}
-
-.stat-content {
-    flex: 1;
-}
-
-.stat-label {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin-bottom: var(--spacing-xs);
-}
-
-.stat-value {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.real-time-indicator {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: var(--success-green);
-    border-radius: 50%;
-    margin-right: var(--spacing-sm);
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-}
-
-@media (max-width: 768px) {
-    .dashboard-container {
-        padding: var(--spacing-lg);
-    }
-    
-    .status-banner {
-        flex-direction: column;
-        align-items: stretch;
-        text-align: center;
-    }
-    
-    .power-flow-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .system-stats {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
-{% endblock %}
-
 {% block content %}
 <div class="dashboard-container">
     <!-- Hardware Status Banner -->
@@ -361,12 +128,7 @@
 
 {% block extra_scripts %}
 <script>
-// WebSocket connection for real-time updates
-let ws = null;
-let reconnectAttempts = 0;
-const maxReconnectAttempts = 5;
-
-// Previous values for trend calculation
+// Store previous values for trend calculation
 let previousValues = {
     solar: 0,
     battery: 0,
@@ -376,43 +138,13 @@ let previousValues = {
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
-    initializeWebSocket();
     loadHardwareStatus();
     loadCurrentData();
     
-    // Refresh data every 5 seconds
+    // Set up periodic updates
     setInterval(loadCurrentData, 5000);
     setInterval(loadHardwareStatus, 10000);
 });
-
-function initializeWebSocket() {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/dashboard/ws`;
-    
-    ws = new WebSocket(wsUrl);
-    
-    ws.onopen = function() {
-        console.log('WebSocket connected');
-        reconnectAttempts = 0;
-    };
-    
-    ws.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        updateDashboard(data);
-    };
-    
-    ws.onclose = function() {
-        console.log('WebSocket disconnected');
-        if (reconnectAttempts < maxReconnectAttempts) {
-            setTimeout(initializeWebSocket, 5000);
-            reconnectAttempts++;
-        }
-    };
-    
-    ws.onerror = function(error) {
-        console.error('WebSocket error:', error);
-    };
-}
 
 async function loadHardwareStatus() {
     try {
@@ -430,7 +162,6 @@ async function loadHardwareStatus() {
 function updateHardwareStatus(status) {
     const statusElement = document.getElementById('hardware-status');
     const statusText = document.getElementById('status-text');
-    const deviceElement = document.getElementById('device-info');
     const deviceText = document.getElementById('device-text');
     
     // Update status
