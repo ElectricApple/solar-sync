@@ -69,13 +69,61 @@
 
 /* Page Layouts */
 .control-page,
-.settings-page {
+.settings-page,
+.charts-page {
     padding: var(--spacing-3xl) 0;
 }
 
 .control-page .card,
-.settings-page .card {
+.settings-page .card,
+.charts-page .card {
     margin-bottom: var(--spacing-2xl);
+}
+
+/* Charts Page Specific Styles */
+.charts-page .chart-container {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: var(--spacing-2xl);
+    margin-bottom: var(--spacing-3xl);
+}
+
+.charts-grid .chart-container {
+    margin-bottom: 0;
+}
+
+.charts-grid .chart-wrapper {
+    height: 300px;
+}
+
+/* Chart Controls Form */
+.chart-controls-form {
+    max-width: 100%;
+}
+
+.control-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-xl);
+    align-items: end;
+}
+
+.control-row .form-group {
+    margin-bottom: 0;
+}
+
+.control-row .form-group:last-child {
+    display: flex;
+    align-items: end;
+}
+
+.control-row .form-group:last-child .btn {
+    width: 100%;
+    justify-content: center;
 }
 
 /* Settings Actions */

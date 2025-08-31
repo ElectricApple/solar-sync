@@ -8,51 +8,67 @@
     <div class="dashboard-header">
         <h1><i class="fas fa-chart-line"></i> Solar Analytics & Charts</h1>
         <div class="chart-controls">
-            <button class="btn btn-sm" id="refresh-charts">Refresh</button>
+            <button class="btn btn-primary btn-sm" id="refresh-charts">
+                <i class="fas fa-sync-alt"></i>
+                Refresh
+            </button>
         </div>
     </div>
 
     <!-- Chart Controls -->
-    <div class="chart-controls-panel">
-        <div class="control-group">
-            <label for="chart-type">Chart Type:</label>
-            <select id="chart-type" class="form-control">
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-            </select>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-sliders-h"></i> Chart Controls</h3>
         </div>
-        
-        <div class="control-group">
-            <label for="date-selector">Date:</label>
-            <input type="date" id="date-selector" class="form-control">
-        </div>
-        
-        <div class="control-group">
-            <button class="btn btn-primary" id="load-chart-data">Load Data</button>
+        <div class="card-body">
+            <div class="chart-controls-form">
+                <div class="control-row">
+                    <div class="form-group">
+                        <label for="chart-type">Chart Type</label>
+                        <select id="chart-type" class="form-control">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="date-selector">Date</label>
+                        <input type="date" id="date-selector" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button class="btn btn-primary" id="load-chart-data">
+                            <i class="fas fa-chart-bar"></i>
+                            Load Data
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Analytics Summary -->
-    <div class="analytics-summary">
-        <div class="summary-card">
-            <h3>Today's Production</h3>
-            <div class="summary-value" id="today-production">-- kWh</div>
+    <div class="status-grid">
+        <div class="status-card">
+            <h3><i class="fas fa-sun"></i> Today's Production</h3>
+            <div class="status-value" id="today-production">-- kWh</div>
         </div>
         
-        <div class="summary-card">
-            <h3>Today's Consumption</h3>
-            <div class="summary-value" id="today-consumption">-- kWh</div>
+        <div class="status-card">
+            <h3><i class="fas fa-plug"></i> Today's Consumption</h3>
+            <div class="status-value" id="today-consumption">-- kWh</div>
         </div>
         
-        <div class="summary-card">
-            <h3>Efficiency</h3>
-            <div class="summary-value" id="today-efficiency">--%</div>
+        <div class="status-card">
+            <h3><i class="fas fa-percentage"></i> Efficiency</h3>
+            <div class="status-value" id="today-efficiency">--%</div>
         </div>
         
-        <div class="summary-card">
-            <h3>Peak Power</h3>
-            <div class="summary-value" id="peak-power">-- kW</div>
+        <div class="status-card">
+            <h3><i class="fas fa-bolt"></i> Peak Power</h3>
+            <div class="status-value" id="peak-power">-- kW</div>
         </div>
     </div>
 
@@ -61,8 +77,14 @@
         <div class="chart-header">
             <h3><i class="fas fa-chart-area"></i> Power Flow Analysis</h3>
             <div class="chart-controls">
-                <button class="btn btn-sm" id="chart-legend-toggle">Toggle Legend</button>
-                <button class="btn btn-sm" id="chart-export">Export</button>
+                <button class="btn btn-secondary btn-sm" id="chart-legend-toggle">
+                    <i class="fas fa-eye"></i>
+                    Toggle Legend
+                </button>
+                <button class="btn btn-success btn-sm" id="chart-export">
+                    <i class="fas fa-download"></i>
+                    Export
+                </button>
             </div>
         </div>
         <div class="chart-wrapper">
