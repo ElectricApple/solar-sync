@@ -55,16 +55,29 @@ class SolarSyncChartManager {
             this.charts[canvasId].destroy();
         }
         
+        // Ensure data exists and has the expected structure
+        if (!data || !data.datasets || !data.datasets.timestamps) {
+            console.error('Invalid data structure for power flow chart:', data);
+            return null;
+        }
+        
+        // Format timestamps for display
+        const labels = data.datasets.timestamps.map(ts => {
+            try {
+                return new Date(ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            } catch (e) {
+                return ts; // Fallback to original timestamp
+            }
+        });
+        
         this.charts[canvasId] = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: data.datasets.timestamps.map(ts => 
-                    new Date(ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-                ),
+                labels: labels,
                 datasets: [
                     {
                         label: 'Solar Power',
-                        data: data.datasets.solar_power,
+                        data: data.datasets.solar_power || [],
                         borderColor: this.theme.colors.solar,
                         backgroundColor: this.theme.colors.solar + '20',
                         fill: true,
@@ -75,12 +88,9 @@ class SolarSyncChartManager {
                     },
                     {
                         label: 'Battery Power',
-                        data: data.datasets.battery_power,
+                        data: data.datasets.battery_power || [],
                         borderColor: this.theme.colors.battery,
-                        backgroundColor: (ctx) => {
-                            const value = ctx.parsed.y;
-                            return value >= 0 ? this.theme.colors.batteryDrain + '20' : this.theme.colors.battery + '20';
-                        },
+                        backgroundColor: this.theme.colors.battery + '20',
                         fill: false,
                         tension: 0.4,
                         borderWidth: 2,
@@ -89,7 +99,7 @@ class SolarSyncChartManager {
                     },
                     {
                         label: 'Load Power',
-                        data: data.datasets.load_power,
+                        data: data.datasets.load_power || [],
                         borderColor: this.theme.colors.load,
                         backgroundColor: this.theme.colors.load + '20',
                         fill: false,
@@ -100,7 +110,7 @@ class SolarSyncChartManager {
                     },
                     {
                         label: 'Grid Power',
-                        data: data.datasets.grid_power,
+                        data: data.datasets.grid_power || [],
                         borderColor: this.theme.colors.grid,
                         backgroundColor: this.theme.colors.grid + '10',
                         fill: false,
@@ -191,20 +201,34 @@ class SolarSyncChartManager {
     createBatteryPerformanceChart(canvasId, data) {
         const ctx = document.getElementById(canvasId);
         
+        // Destroy existing chart if it exists
         if (this.charts[canvasId]) {
             this.charts[canvasId].destroy();
         }
         
+        // Ensure data exists and has the expected structure
+        if (!data || !data.timestamps) {
+            console.error('Invalid data structure for battery performance chart:', data);
+            return null;
+        }
+        
+        // Format timestamps for display
+        const labels = data.timestamps.map(ts => {
+            try {
+                return new Date(ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            } catch (e) {
+                return ts; // Fallback to original timestamp
+            }
+        });
+        
         this.charts[canvasId] = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: data.timestamps.map(ts => 
-                    new Date(ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-                ),
+                labels: labels,
                 datasets: [
                     {
                         label: 'Battery SOC (%)',
-                        data: data.soc_data,
+                        data: data.soc_data || [],
                         borderColor: this.theme.colors.battery,
                         backgroundColor: this.theme.colors.battery + '20',
                         fill: true,
@@ -216,7 +240,7 @@ class SolarSyncChartManager {
                     },
                     {
                         label: 'Battery Voltage (V)',
-                        data: data.voltage_data,
+                        data: data.voltage_data || [],
                         borderColor: this.theme.colors.solar,
                         backgroundColor: this.theme.colors.solar + '10',
                         fill: false,
@@ -321,8 +345,15 @@ class SolarSyncChartManager {
     createEnergySummaryChart(canvasId, data) {
         const ctx = document.getElementById(canvasId);
         
+        // Destroy existing chart if it exists
         if (this.charts[canvasId]) {
             this.charts[canvasId].destroy();
+        }
+        
+        // Ensure data exists and has the expected structure
+        if (!data || !data.labels) {
+            console.error('Invalid data structure for energy summary chart:', data);
+            return null;
         }
         
         this.charts[canvasId] = new Chart(ctx, {
@@ -332,7 +363,7 @@ class SolarSyncChartManager {
                 datasets: [
                     {
                         label: 'Solar Generated (kWh)',
-                        data: data.solar_energy,
+                        data: data.solar_energy || [],
                         backgroundColor: this.theme.colors.solar + '80',
                         borderColor: this.theme.colors.solar,
                         borderWidth: 1,
@@ -340,7 +371,7 @@ class SolarSyncChartManager {
                     },
                     {
                         label: 'Energy Consumed (kWh)', 
-                        data: data.load_energy,
+                        data: data.load_energy || [],
                         backgroundColor: this.theme.colors.load + '80',
                         borderColor: this.theme.colors.load,
                         borderWidth: 1,
@@ -348,7 +379,7 @@ class SolarSyncChartManager {
                     },
                     {
                         label: 'Net Energy (kWh)',
-                        data: data.net_energy,
+                        data: data.net_energy || [],
                         type: 'line',
                         borderColor: this.theme.colors.battery,
                         backgroundColor: 'transparent',
@@ -430,19 +461,33 @@ class SolarSyncChartManager {
     createEfficiencyChart(canvasId, data) {
         const ctx = document.getElementById(canvasId);
         
+        // Destroy existing chart if it exists
         if (this.charts[canvasId]) {
             this.charts[canvasId].destroy();
         }
         
+        // Ensure data exists and has the expected structure
+        if (!data || !data.timestamps) {
+            console.error('Invalid data structure for efficiency chart:', data);
+            return null;
+        }
+        
+        // Format timestamps for display
+        const labels = data.timestamps.map(ts => {
+            try {
+                return new Date(ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            } catch (e) {
+                return ts; // Fallback to original timestamp
+            }
+        });
+        
         this.charts[canvasId] = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: data.timestamps.map(ts => 
-                    new Date(ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-                ),
+                labels: labels,
                 datasets: [{
                     label: 'System Efficiency (%)',
-                    data: data.efficiency_data,
+                    data: data.efficiency_data || [],
                     borderColor: this.theme.colors.solar,
                     backgroundColor: this.theme.colors.solar + '20',
                     fill: true,
@@ -547,13 +592,11 @@ class SolarSyncChartManager {
         };
         
         this.websocket.onclose = () => {
-            // Reconnect after 5 seconds
             setTimeout(() => this.startRealTimeUpdates(), 5000);
         };
     }
     
     handleRealTimeData(data) {
-        // Update live charts with new data point
         Object.keys(this.charts).forEach(chartId => {
             const chart = this.charts[chartId];
             if (chart && chartId.includes('live')) {
@@ -574,7 +617,6 @@ class SolarSyncChartManager {
         chart.data.datasets[2].data.push(data.load_power_w);
         chart.data.datasets[3].data.push(data.grid_power_w);
         
-        // Keep only last 20 points for live view
         if (chart.data.labels.length > 20) {
             chart.data.labels.shift();
             chart.data.datasets.forEach(dataset => dataset.data.shift());
