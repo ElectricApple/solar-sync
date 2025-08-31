@@ -9,6 +9,7 @@ let chartData = {
     load: [],
     grid: []
 };
+let isChartPaused = false;
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
@@ -42,16 +43,46 @@ document.addEventListener('DOMContentLoaded', function() {
 function initNavigation() {
     const navToggle = document.getElementById('nav-toggle');
     const navMenu = document.querySelector('.nav-menu');
+    const navLinks = document.querySelectorAll('.nav-link');
     
     if (navToggle && navMenu) {
-        navToggle.addEventListener('click', function() {
+        navToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
             navMenu.classList.toggle('active');
+            
+            // Update toggle icon
+            const icon = navToggle.querySelector('i');
+            if (navMenu.classList.contains('active')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
+        });
+        
+        // Close mobile menu when clicking on a link
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                navMenu.classList.remove('active');
+                const icon = navToggle.querySelector('i');
+                icon.className = 'fas fa-bars';
+            });
         });
         
         // Close mobile menu when clicking outside
         document.addEventListener('click', function(event) {
             if (!navToggle.contains(event.target) && !navMenu.contains(event.target)) {
                 navMenu.classList.remove('active');
+                const icon = navToggle.querySelector('i');
+                icon.className = 'fas fa-bars';
+            }
+        });
+        
+        // Close mobile menu on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 575) {
+                navMenu.classList.remove('active');
+                const icon = navToggle.querySelector('i');
+                icon.className = 'fas fa-bars';
             }
         });
     }
@@ -68,10 +99,32 @@ function initDashboard() {
     loadDashboardData();
     
     // Set up periodic data refresh
-    setInterval(loadDashboardData, 10000); // Refresh every 10 seconds
+    setInterval(() => {
+        if (!isChartPaused) {
+            loadDashboardData();
+        }
+    }, 5000); // Refresh every 5 seconds
     
     // Set up chart controls
     setupChartControls();
+    
+    // Add fade-in animation to dashboard elements
+    addDashboardAnimations();
+}
+
+// Add animations to dashboard elements
+function addDashboardAnimations() {
+    const elements = document.querySelectorAll('.metric-card, .status-card, .chart-container, .events-container');
+    elements.forEach((element, index) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            element.style.transition = 'all 0.6s ease';
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
 }
 
 // Initialize power chart
@@ -89,36 +142,44 @@ function initPowerChart() {
                     data: [],
                     borderColor: '#FFD700',
                     backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                    borderWidth: 2,
+                    borderWidth: 3,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 },
                 {
                     label: 'Battery Power',
                     data: [],
                     borderColor: '#28A745',
                     backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                    borderWidth: 2,
+                    borderWidth: 3,
                     fill: false,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 },
                 {
                     label: 'Load Power',
                     data: [],
                     borderColor: '#17A2B8',
                     backgroundColor: 'rgba(23, 162, 184, 0.1)',
-                    borderWidth: 2,
+                    borderWidth: 3,
                     fill: false,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 },
                 {
                     label: 'Grid Power',
                     data: [],
                     borderColor: '#FF8C00',
                     backgroundColor: 'rgba(255, 140, 0, 0.1)',
-                    borderWidth: 2,
+                    borderWidth: 3,
                     fill: false,
-                    tension: 0.4
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }
             ]
         },
@@ -134,15 +195,28 @@ function initPowerChart() {
                     position: 'top',
                     labels: {
                         usePointStyle: true,
-                        padding: 20
+                        padding: 20,
+                        font: {
+                            size: 12,
+                            weight: '500'
+                        }
                     }
                 },
                 tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
                     titleColor: '#fff',
                     bodyColor: '#fff',
                     borderColor: '#FFD700',
-                    borderWidth: 1
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    displayColors: true,
+                    titleFont: {
+                        size: 14,
+                        weight: '600'
+                    },
+                    bodyFont: {
+                        size: 13
+                    }
                 }
             },
             scales: {
@@ -150,22 +224,46 @@ function initPowerChart() {
                     display: true,
                     title: {
                         display: true,
-                        text: 'Time'
+                        text: 'Time',
+                        font: {
+                            size: 12,
+                            weight: '500'
+                        }
                     },
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(0, 0, 0, 0.1)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
                     }
                 },
                 y: {
                     display: true,
                     title: {
                         display: true,
-                        text: 'Power (Watts)'
+                        text: 'Power (Watts)',
+                        font: {
+                            size: 12,
+                            weight: '500'
+                        }
                     },
                     grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(0, 0, 0, 0.1)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
                     }
                 }
+            },
+            animation: {
+                duration: 750,
+                easing: 'easeInOutQuart'
             }
         }
     };
@@ -180,11 +278,13 @@ async function loadDashboardData() {
         const response = await fetch('/dashboard/current');
         const data = await response.json();
         
-        // Update metrics
+        // Update metrics with animation
         updateMetrics(data);
         
         // Update chart
-        updateChart(data);
+        if (!isChartPaused) {
+            updateChart(data);
+        }
         
         // Update last update time
         updateLastUpdate();
@@ -195,53 +295,48 @@ async function loadDashboardData() {
     }
 }
 
-// Update metrics display
+// Update metrics display with animations
 function updateMetrics(data) {
     // Solar power
-    const solarElement = document.getElementById('solar-power');
-    if (solarElement) {
-        solarElement.textContent = formatPower(data.solar_power_w);
-    }
+    updateMetricWithAnimation('solar-power', formatPower(data.solar_power_w));
     
     // Battery
-    const batterySocElement = document.getElementById('battery-soc');
-    const batteryPowerElement = document.getElementById('battery-power');
-    if (batterySocElement) {
-        batterySocElement.textContent = data.battery_soc_percent.toFixed(1);
-    }
-    if (batteryPowerElement) {
-        const power = data.battery_power_w;
-        const sign = power >= 0 ? '+' : '';
-        batteryPowerElement.textContent = `${sign}${formatPower(power)}`;
-    }
+    updateMetricWithAnimation('battery-soc', data.battery_soc_percent.toFixed(1));
+    const batteryPower = data.battery_power_w;
+    const sign = batteryPower >= 0 ? '+' : '';
+    updateMetricWithAnimation('battery-power', `${sign}${formatPower(batteryPower)}`);
     
     // Load power
-    const loadElement = document.getElementById('load-power');
-    if (loadElement) {
-        loadElement.textContent = formatPower(data.load_power_w);
-    }
+    updateMetricWithAnimation('load-power', formatPower(data.load_power_w));
     
     // Grid power
-    const gridElement = document.getElementById('grid-power');
-    const gridDirectionElement = document.getElementById('grid-direction');
-    if (gridElement) {
-        gridElement.textContent = formatPower(Math.abs(data.grid_power_w));
-    }
-    if (gridDirectionElement) {
-        const direction = data.grid_power_w >= 0 ? 'Import' : 'Export';
-        gridDirectionElement.textContent = direction;
-    }
+    updateMetricWithAnimation('grid-power', formatPower(Math.abs(data.grid_power_w)));
+    const direction = data.grid_power_w >= 0 ? 'Import' : 'Export';
+    updateMetricWithAnimation('grid-direction', direction);
     
     // System temperature
-    const tempElement = document.getElementById('system-temp');
-    if (tempElement) {
-        tempElement.textContent = `${data.inverter_temp_c.toFixed(1)}°C`;
-    }
+    updateMetricWithAnimation('system-temp', `${data.inverter_temp_c.toFixed(1)}°C`);
     
     // System efficiency
-    const efficiencyElement = document.getElementById('system-efficiency');
-    if (efficiencyElement) {
-        efficiencyElement.textContent = `${data.system_efficiency_percent.toFixed(1)}%`;
+    updateMetricWithAnimation('system-efficiency', `${data.system_efficiency_percent.toFixed(1)}%`);
+    
+    // Daily production
+    updateMetricWithAnimation('daily-production', `${data.daily_energy_kwh.toFixed(2)} kWh`);
+}
+
+// Update metric with subtle animation
+function updateMetricWithAnimation(elementId, newValue) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    if (element.textContent !== newValue) {
+        element.style.transform = 'scale(1.05)';
+        element.style.transition = 'transform 0.2s ease';
+        element.textContent = newValue;
+        
+        setTimeout(() => {
+            element.style.transform = 'scale(1)';
+        }, 200);
     }
 }
 
@@ -259,8 +354,8 @@ function updateChart(data) {
     chartData.load.push(data.load_power_w);
     chartData.grid.push(data.grid_power_w);
     
-    // Keep only last 20 data points
-    const maxPoints = 20;
+    // Keep only last 30 data points
+    const maxPoints = 30;
     if (chartData.labels.length > maxPoints) {
         chartData.labels.shift();
         chartData.solar.shift();
@@ -284,14 +379,22 @@ function setupChartControls() {
     const chartToggle = document.getElementById('chart-toggle');
     if (chartToggle) {
         chartToggle.addEventListener('click', function() {
-            if (powerChart.options.plugins.legend.display) {
-                powerChart.options.plugins.legend.display = false;
-                chartToggle.textContent = 'Show Legend';
+            isChartPaused = !isChartPaused;
+            
+            const icon = chartToggle.querySelector('i');
+            const text = chartToggle.querySelector('span') || chartToggle;
+            
+            if (isChartPaused) {
+                icon.className = 'fas fa-play';
+                text.textContent = 'Resume';
+                chartToggle.classList.remove('btn-secondary');
+                chartToggle.classList.add('btn-warning');
             } else {
-                powerChart.options.plugins.legend.display = true;
-                chartToggle.textContent = 'Hide Legend';
+                icon.className = 'fas fa-pause';
+                text.textContent = 'Pause';
+                chartToggle.classList.remove('btn-warning');
+                chartToggle.classList.add('btn-secondary');
             }
-            powerChart.update();
         });
     }
 }
@@ -310,7 +413,7 @@ function formatPower(watts) {
     if (watts >= 1000) {
         return (watts / 1000).toFixed(1) + 'k';
     }
-    return watts.toString();
+    return Math.round(watts).toString();
 }
 
 function formatEnergy(wattHours) {
@@ -322,12 +425,39 @@ function formatEnergy(wattHours) {
 
 function showError(message) {
     console.error(message);
-    // You can implement a toast notification system here
+    // Create a toast notification
+    createToast(message, 'error');
 }
 
 function showSuccess(message) {
     console.log(message);
-    // You can implement a toast notification system here
+    // Create a toast notification
+    createToast(message, 'success');
+}
+
+// Create toast notification
+function createToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
 }
 
 // Charts page initialization
@@ -353,5 +483,6 @@ window.SolarSync = {
     formatPower,
     formatEnergy,
     showError,
-    showSuccess
+    showSuccess,
+    createToast
 };
