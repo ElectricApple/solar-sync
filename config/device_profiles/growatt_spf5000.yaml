@@ -1,0 +1,249 @@
+device:
+  name: "Growatt SPF 5000ES"
+  manufacturer: "Growatt"
+  model: "SPF 5000ES"
+  type: "growatt_spf"
+  protocol: "modbus_rtu"
+  default_baudrate: 9600
+  default_slave_id: 1
+
+# Modbus register mappings
+registers:
+  # System Information
+  device_id:
+    address: 0x0000
+    count: 10
+    type: "string"
+    description: "Device identification"
+  
+  firmware_version:
+    address: 0x000A
+    count: 2
+    type: "string"
+    description: "Firmware version"
+  
+  # Real-time Data
+  pv_power:
+    address: 0x0003
+    count: 1
+    type: "uint16"
+    scale: 1.0
+    unit: "W"
+    description: "Solar power"
+  
+  battery_power:
+    address: 0x0004
+    count: 1
+    type: "int16"
+    scale: 1.0
+    unit: "W"
+    description: "Battery power (negative = charging)"
+  
+  load_power:
+    address: 0x0005
+    count: 1
+    type: "uint16"
+    scale: 1.0
+    unit: "W"
+    description: "Load power"
+  
+  grid_power:
+    address: 0x0006
+    count: 1
+    type: "int16"
+    scale: 1.0
+    unit: "W"
+    description: "Grid power (negative = exporting)"
+  
+  battery_soc:
+    address: 0x0007
+    count: 1
+    type: "uint16"
+    scale: 1.0
+    unit: "%"
+    description: "Battery state of charge"
+  
+  battery_voltage:
+    address: 0x0008
+    count: 1
+    type: "uint16"
+    scale: 0.1
+    unit: "V"
+    description: "Battery voltage"
+  
+  battery_current:
+    address: 0x0009
+    count: 1
+    type: "int16"
+    scale: 0.1
+    unit: "A"
+    description: "Battery current"
+  
+  pv_voltage:
+    address: 0x000A
+    count: 1
+    type: "uint16"
+    scale: 0.1
+    unit: "V"
+    description: "PV voltage"
+  
+  pv_current:
+    address: 0x000B
+    count: 1
+    type: "uint16"
+    scale: 0.1
+    unit: "A"
+    description: "PV current"
+  
+  grid_voltage:
+    address: 0x000C
+    count: 1
+    type: "uint16"
+    scale: 0.1
+    unit: "V"
+    description: "Grid voltage"
+  
+  grid_current:
+    address: 0x000D
+    count: 1
+    type: "int16"
+    scale: 0.1
+    unit: "A"
+    description: "Grid current"
+  
+  grid_frequency:
+    address: 0x000E
+    count: 1
+    type: "uint16"
+    scale: 0.01
+    unit: "Hz"
+    description: "Grid frequency"
+  
+  temperature:
+    address: 0x000F
+    count: 1
+    type: "int16"
+    scale: 1.0
+    unit: "°C"
+    description: "Inverter temperature"
+  
+  # Energy Totals
+  pv_energy_today:
+    address: 0x0010
+    count: 2
+    type: "uint32"
+    scale: 0.1
+    unit: "kWh"
+    description: "PV energy today"
+  
+  pv_energy_total:
+    address: 0x0012
+    count: 2
+    type: "uint32"
+    scale: 0.1
+    unit: "kWh"
+    description: "PV energy total"
+  
+  grid_energy_today:
+    address: 0x0014
+    count: 2
+    type: "uint32"
+    scale: 0.1
+    unit: "kWh"
+    description: "Grid energy today"
+  
+  grid_energy_total:
+    address: 0x0016
+    count: 2
+    type: "uint32"
+    scale: 0.1
+    unit: "kWh"
+    description: "Grid energy total"
+  
+  load_energy_today:
+    address: 0x0018
+    count: 2
+    type: "uint32"
+    scale: 0.1
+    unit: "kWh"
+    description: "Load energy today"
+  
+  load_energy_total:
+    address: 0x001A
+    count: 2
+    type: "uint32"
+    scale: 0.1
+    unit: "kWh"
+    description: "Load energy total"
+
+# Control registers
+controls:
+  output_priority:
+    address: 0x1000
+    type: "uint16"
+    values:
+      solar: 0
+      battery: 1
+      grid: 2
+    description: "Output priority setting"
+  
+  battery_charge_limit:
+    address: 0x1001
+    type: "uint16"
+    scale: 1.0
+    unit: "%"
+    min: 0
+    max: 100
+    description: "Battery charge limit"
+  
+  battery_discharge_limit:
+    address: 0x1002
+    type: "uint16"
+    scale: 1.0
+    unit: "%"
+    min: 0
+    max: 100
+    description: "Battery discharge limit"
+  
+  grid_export_limit:
+    address: 0x1003
+    type: "uint16"
+    scale: 1.0
+    unit: "W"
+    min: 0
+    max: 5000
+    description: "Grid export power limit"
+  
+  emergency_power:
+    address: 0x1004
+    type: "uint16"
+    values:
+      disabled: 0
+      enabled: 1
+    description: "Emergency power mode"
+
+# Device identification patterns
+identification:
+  patterns:
+    - "GROWATT"
+    - "SPF"
+    - "5000"
+  
+  # Register addresses to check for identification
+  id_registers:
+    - 0x0000  # Device ID
+    - 0x000A  # Firmware version
+
+# Safety limits
+safety:
+  max_pv_voltage: 500.0  # V
+  max_battery_voltage: 60.0  # V
+  min_battery_voltage: 40.0  # V
+  max_temperature: 65.0  # °C
+  max_power: 5000.0  # W
+
+# Communication settings
+communication:
+  timeout: 1.0  # seconds
+  retries: 3
+  delay_between_requests: 0.1  # seconds

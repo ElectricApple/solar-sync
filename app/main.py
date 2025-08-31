@@ -1,27 +1,33 @@
+"""
+Solar Sync - Main Application
+Professional Solar Monitoring System
+"""
+
 import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
-from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
+import os
 
-from app.config.settings import settings
-from app.config.database import init_db
-from app.services.websocket_manager import websocket_manager
-from app.database.seed_data import seed_development_data
-from app.routers import dashboard, charts, control, settings as settings_router
+from .config.database import init_db
+from .database.seed_data import seed_development_data
+from .services.websocket_manager import websocket_manager
+from .hardware.device_manager import device_manager
 
 # Configure logging
 logging.basicConfig(
-    level=getattr(logging, settings.log_level.upper()),
+    level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
+
 logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan manager"""
+    """Application lifespan manager."""
     # Startup
     logger.info("Starting Solar Sync application...")
     
@@ -29,110 +35,95 @@ async def lifespan(app: FastAPI):
     await init_db()
     logger.info("Database initialized")
     
-    # Seed development data if in development mode
-    if settings.environment == "development":
-        from app.config.database import AsyncSessionLocal
-        async with AsyncSessionLocal() as session:
-            await seed_development_data(session)
-        logger.info("Development data seeded")
+    # Seed development data
+    await seed_development_data()
+    logger.info("Development data seeded")
     
-    # Start WebSocket update loop
-    await websocket_manager.start_update_loop()
+    # Start WebSocket manager
+    websocket_manager.start()
     logger.info("WebSocket manager started")
+    
+    # Start hardware device manager
+    await device_manager.start()
+    logger.info("Hardware device manager started")
     
     yield
     
     # Shutdown
     logger.info("Shutting down Solar Sync application...")
-    await websocket_manager.stop_update_loop()
+    
+    # Stop hardware device manager
+    await device_manager.stop()
+    logger.info("Hardware device manager stopped")
+    
+    # Stop WebSocket manager
+    websocket_manager.stop()
     logger.info("WebSocket manager stopped")
 
 
 # Create FastAPI application
 app = FastAPI(
-    title=settings.system_name,
-    version=settings.system_version,
+    title="Solar Sync",
     description="Professional Solar Monitoring System",
+    version="2.0.0",
     lifespan=lifespan
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Mount static files
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
-# Create templates
+# Templates
 templates = Jinja2Templates(directory="app/templates")
 
-# Include routers
+# Import and include routers
+from .routers import dashboard, charts, control, settings, hardware
+
 app.include_router(dashboard.router)
 app.include_router(charts.router)
 app.include_router(control.router)
-app.include_router(settings_router.router)
+app.include_router(settings.router)
+app.include_router(hardware.router)
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/")
 async def root(request: Request):
-    """Main dashboard page"""
-    return templates.TemplateResponse("dashboard.html", {"request": request})
-
-
-@app.get("/dashboard", response_class=HTMLResponse)
-async def dashboard_page(request: Request):
-    """Dashboard page"""
-    return templates.TemplateResponse("dashboard.html", {"request": request})
-
-
-@app.get("/charts", response_class=HTMLResponse)
-async def charts_page(request: Request):
-    """Charts page"""
-    return templates.TemplateResponse("charts.html", {"request": request})
-
-
-@app.get("/control", response_class=HTMLResponse)
-async def control_page(request: Request):
-    """Control page"""
-    return templates.TemplateResponse("control.html", {"request": request})
-
-
-@app.get("/settings", response_class=HTMLResponse)
-async def settings_page(request: Request):
-    """Settings page"""
-    return templates.TemplateResponse("settings.html", {"request": request})
+    """Root endpoint - redirect to dashboard."""
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/dashboard")
 
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
+    """Health check endpoint."""
     return {
         "status": "healthy",
-        "system": settings.system_name,
-        "version": settings.system_version,
-        "environment": settings.environment,
-        "simulate_hardware": settings.simulate_hardware
+        "version": "2.0.0",
+        "hardware_mode": "simulation" if device_manager.simulation_mode else "real_devices",
+        "connected_devices": sum(1 for d in device_manager.devices.values() if d.status.value == "connected")
     }
 
 
-@app.get("/api")
-async def api_info():
-    """API information endpoint"""
+@app.get("/api/status")
+async def api_status():
+    """API status endpoint."""
     return {
-        "name": settings.system_name,
-        "version": settings.system_version,
-        "endpoints": {
-            "dashboard": "/dashboard",
-            "charts": "/charts", 
-            "control": "/control",
-            "settings": "/settings",
-            "websocket": "/dashboard/ws",
-            "health": "/health"
+        "status": "operational",
+        "version": "2.0.0",
+        "hardware": {
+            "simulation_mode": device_manager.simulation_mode,
+            "total_devices": len(device_manager.devices),
+            "connected_devices": sum(1 for d in device_manager.devices.values() if d.status.value == "connected")
+        },
+        "websocket": {
+            "active_connections": len(websocket_manager.active_connections)
         }
     }
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "app.main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=settings.environment == "development"
-    )
