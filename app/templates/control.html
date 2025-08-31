@@ -14,7 +14,7 @@
     </div>
 
     <!-- System Status -->
-    <div class="system-status">
+    <div class="status-grid">
         <div class="status-card">
             <h3><i class="fas fa-server"></i> System Status</h3>
             <div class="status-value" id="system-status">Online</div>
@@ -37,75 +37,94 @@
     </div>
 
     <!-- Device Control -->
-    <div class="device-control-section">
-        <div class="section-header">
-            <h2><i class="fas fa-plug"></i> Device Control</h2>
-            <button class="btn btn-primary" id="refresh-devices">Refresh Devices</button>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-plug"></i> Device Control</h3>
+            <button class="btn btn-primary btn-sm" id="refresh-devices">
+                <i class="fas fa-sync-alt"></i>
+                Refresh Devices
+            </button>
         </div>
-        
-        <div class="devices-grid" id="devices-grid">
-            <!-- Devices will be loaded here -->
-            <div class="loading">Loading devices...</div>
+        <div class="card-body">
+            <div class="devices-grid" id="devices-grid">
+                <!-- Devices will be loaded here -->
+                <div class="empty-state">
+                    <i class="fas fa-plug"></i>
+                    <h3>No Devices Found</h3>
+                    <p>No devices are currently connected to the system.</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- System Control -->
-    <div class="system-control-section">
-        <div class="section-header">
-            <h2><i class="fas fa-power-off"></i> System Control</h2>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-power-off"></i> System Control</h3>
         </div>
-        
-        <div class="control-actions">
-            <div class="control-group">
-                <h3>System Operations</h3>
-                <div class="button-group">
-                    <button class="btn btn-warning" id="restart-system">
-                        <i class="fas fa-redo"></i> Restart System
-                    </button>
-                    <button class="btn btn-danger" id="shutdown-system">
-                        <i class="fas fa-power-off"></i> Shutdown System
-                    </button>
+        <div class="card-body">
+            <div class="control-actions">
+                <div class="control-group">
+                    <h4><i class="fas fa-redo"></i> System Operations</h4>
+                    <div class="button-group">
+                        <button class="btn btn-warning" id="restart-system">
+                            <i class="fas fa-redo"></i>
+                            Restart System
+                        </button>
+                        <button class="btn btn-danger" id="shutdown-system">
+                            <i class="fas fa-power-off"></i>
+                            Shutdown System
+                        </button>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="control-group">
-                <h3>Data Management</h3>
-                <div class="button-group">
-                    <button class="btn btn-secondary" id="backup-data">
-                        <i class="fas fa-download"></i> Backup Data
-                    </button>
-                    <button class="btn btn-secondary" id="clear-data">
-                        <i class="fas fa-trash"></i> Clear Data
-                    </button>
+                
+                <div class="control-group">
+                    <h4><i class="fas fa-database"></i> Data Management</h4>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" id="backup-data">
+                            <i class="fas fa-download"></i>
+                            Backup Data
+                        </button>
+                        <button class="btn btn-secondary" id="clear-data">
+                            <i class="fas fa-trash"></i>
+                            Clear Data
+                        </button>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="control-group">
-                <h3>Simulation Control</h3>
-                <div class="button-group">
-                    <button class="btn btn-info" id="toggle-simulation">
-                        <i class="fas fa-play"></i> Toggle Simulation
-                    </button>
-                    <button class="btn btn-info" id="reset-simulation">
-                        <i class="fas fa-undo"></i> Reset Simulation
-                    </button>
+                
+                <div class="control-group">
+                    <h4><i class="fas fa-play-circle"></i> Simulation Control</h4>
+                    <div class="button-group">
+                        <button class="btn btn-info" id="toggle-simulation">
+                            <i class="fas fa-play"></i>
+                            Toggle Simulation
+                        </button>
+                        <button class="btn btn-info" id="reset-simulation">
+                            <i class="fas fa-undo"></i>
+                            Reset Simulation
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Control Log -->
-    <div class="control-log-section">
-        <div class="section-header">
-            <h2><i class="fas fa-list-alt"></i> Control Log</h2>
-            <button class="btn btn-sm" id="clear-log">Clear Log</button>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-list-alt"></i> Control Log</h3>
+            <button class="btn btn-secondary btn-sm" id="clear-log">
+                <i class="fas fa-trash"></i>
+                Clear Log
+            </button>
         </div>
-        
-        <div class="log-container">
-            <div class="log-entries" id="control-log">
-                <div class="log-entry info">
-                    <span class="log-time">[12:00:00]</span>
-                    <span class="log-message">System control interface initialized</span>
+        <div class="card-body">
+            <div class="log-container">
+                <div class="log-entries" id="control-log">
+                    <div class="log-entry info">
+                        <div class="log-time">[12:00:00]</div>
+                        <div class="log-message">System control interface initialized</div>
+                    </div>
                 </div>
             </div>
         </div>
