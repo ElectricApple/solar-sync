@@ -11,7 +11,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
-from .config.database import init_db
+from .config.database import init_db, AsyncSessionLocal
 from .database.seed_data import seed_development_data
 from .services.websocket_manager import websocket_manager
 from .hardware.device_manager import device_manager
@@ -36,11 +36,12 @@ async def lifespan(app: FastAPI):
     logger.info("Database initialized")
     
     # Seed development data
-    await seed_development_data()
+    async with AsyncSessionLocal() as session:
+        await seed_development_data(session)
     logger.info("Development data seeded")
     
     # Start WebSocket manager
-    websocket_manager.start()
+    await websocket_manager.start_update_loop()
     logger.info("WebSocket manager started")
     
     # Start hardware device manager
@@ -57,7 +58,7 @@ async def lifespan(app: FastAPI):
     logger.info("Hardware device manager stopped")
     
     # Stop WebSocket manager
-    websocket_manager.stop()
+    await websocket_manager.stop_update_loop()
     logger.info("WebSocket manager stopped")
 
 

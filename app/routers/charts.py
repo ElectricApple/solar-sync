@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Response
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, Request
+from fastapi.responses import StreamingResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 from typing import Optional
@@ -10,6 +11,14 @@ from ..services.chart_data_service import ChartDataService
 from ..services.data_export_service import DataExportService
 
 router = APIRouter(prefix="/charts", tags=["charts"])
+templates = Jinja2Templates(directory="app/templates")
+
+
+@router.get("/", response_class=HTMLResponse)
+async def charts_page(request: Request):
+    """Charts page"""
+    return templates.TemplateResponse("charts.html", {"request": request})
+
 
 @router.get("/power-flow")
 async def get_power_flow_data(

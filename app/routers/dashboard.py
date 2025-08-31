@@ -1,4 +1,6 @@
-from fastapi import APIRouter, WebSocket, Depends, HTTPException
+from fastapi import APIRouter, WebSocket, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from datetime import datetime, timedelta
@@ -11,6 +13,13 @@ from app.services.websocket_manager import websocket_manager
 from app.services.data_simulator import SolarDataSimulator
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+templates = Jinja2Templates(directory="app/templates")
+
+
+@router.get("/", response_class=HTMLResponse)
+async def dashboard_page(request: Request):
+    """Dashboard page"""
+    return templates.TemplateResponse("dashboard.html", {"request": request})
 
 
 @router.websocket("/ws")

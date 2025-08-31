@@ -1,14 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from typing import List, Dict, Any
 from pydantic import BaseModel
+import logging
 
 from app.config.database import get_db
-from app.database.models import SystemConfig
+from app.database.models import SystemConfig, SystemEvent
 from app.config.settings import settings
 
 router = APIRouter(prefix="/settings", tags=["settings"])
+templates = Jinja2Templates(directory="app/templates")
+
+logger = logging.getLogger(__name__)
 
 
 class ConfigUpdate(BaseModel):
@@ -16,8 +22,14 @@ class ConfigUpdate(BaseModel):
     description: str = None
 
 
-@router.get("/")
-async def get_all_settings(db: AsyncSession = Depends(get_db)) -> List[Dict[str, Any]]:
+@router.get("/", response_class=HTMLResponse)
+async def settings_page(request: Request):
+    """Settings page"""
+    return templates.TemplateResponse("settings.html", {"request": request})
+
+
+@router.get("/config")
+async def get_system_config(db: AsyncSession = Depends(get_db)) -> Dict[str, Any]:
     """Get all system configuration settings"""
     config_data = await db.execute(
         select(SystemConfig).order_by(SystemConfig.key)

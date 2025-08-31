@@ -1,20 +1,32 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Dict, Any
 from pydantic import BaseModel
 from datetime import datetime
 from sqlalchemy import select
+import logging
 
 from app.config.database import get_db
-from app.database.models import DeviceRegistry
+from app.database.models import DeviceRegistry, SystemConfig
 from app.config.settings import settings
 
 router = APIRouter(prefix="/control", tags=["control"])
+templates = Jinja2Templates(directory="app/templates")
+
+logger = logging.getLogger(__name__)
 
 
 class DeviceControl(BaseModel):
     action: str
     parameters: Dict[str, Any] = {}
+
+
+@router.get("/", response_class=HTMLResponse)
+async def control_page(request: Request):
+    """Control page"""
+    return templates.TemplateResponse("control.html", {"request": request})
 
 
 @router.get("/devices")
