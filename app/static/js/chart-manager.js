@@ -11,14 +11,15 @@ class SolarSyncChartManager {
     
     initChartDefaults() {
         // Solar Sync yellow theme
-        Chart.defaults.color = '#E5E7EB';
+        Chart.defaults.color = '#1A1A1A'; // Dark text for light chart backgrounds
         Chart.defaults.borderColor = '#374151';
         Chart.defaults.backgroundColor = 'rgba(255, 215, 0, 0.1)';
         
         // Font settings
         Chart.defaults.font = {
             family: "'Inter', system-ui, sans-serif",
-            size: 12
+            size: 12,
+            color: '#1A1A1A' // Ensure font color is set
         };
         
         // Animation settings (optimized for Pi)
@@ -37,7 +38,8 @@ class SolarSyncChartManager {
                 load: '#3B82F6',       // Blue
                 grid: '#6B7280',       // Gray
                 background: '#1F2937', // Dark gray
-                text: '#F9FAFB',       // Light gray
+                text: '#1A1A1A',       // Dark text for light chart backgrounds
+                textLight: '#F9FAFB',  // Light text for dark elements
                 border: '#374151'      // Medium gray
             },
             gradients: {
