@@ -3,123 +3,125 @@
 {% block title %}Dashboard - Solar Sync{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-    <!-- Hardware Status Banner -->
-    <div class="status-banner">
-        <div class="hardware-info">
-            <div class="hardware-status" id="hardware-status">
-                <i class="fas fa-microchip"></i>
-                <span id="status-text">Checking hardware...</span>
+<div class="dashboard-page">
+    <div class="dashboard-container">
+        <!-- Hardware Status Banner -->
+        <div class="status-banner">
+            <div class="hardware-info">
+                <div class="hardware-status" id="hardware-status">
+                    <i class="fas fa-microchip"></i>
+                    <span id="status-text">Checking hardware...</span>
+                </div>
+                <div class="device-info" id="device-info">
+                    <i class="fas fa-plug"></i>
+                    <span id="device-text">No devices connected</span>
+                </div>
             </div>
-            <div class="device-info" id="device-info">
-                <i class="fas fa-plug"></i>
-                <span id="device-text">No devices connected</span>
-            </div>
-        </div>
-        <div class="real-time-indicator-container">
-            <span class="real-time-indicator"></span>
-            <span>Real-time data</span>
-        </div>
-    </div>
-
-    <!-- Power Flow Grid -->
-    <div class="power-flow-grid">
-        <!-- Solar Power -->
-        <div class="power-card solar">
-            <div class="power-icon">
-                <i class="fas fa-solar-panel"></i>
-            </div>
-            <div class="power-label">Solar Power</div>
-            <div class="power-value" id="solar-power">--</div>
-            <div class="power-unit">Watts</div>
-            <div class="power-trend" id="solar-trend">
-                <i class="fas fa-minus"></i> Stable
+            <div class="real-time-indicator-container">
+                <span class="real-time-indicator"></span>
+                <span>Real-time data</span>
             </div>
         </div>
 
-        <!-- Battery Power -->
-        <div class="power-card battery">
-            <div class="power-icon">
-                <i class="fas fa-battery-three-quarters"></i>
+        <!-- Power Flow Grid -->
+        <div class="power-flow-grid">
+            <!-- Solar Power -->
+            <div class="power-card solar">
+                <div class="power-icon">
+                    <i class="fas fa-solar-panel"></i>
+                </div>
+                <div class="power-label">Solar Power</div>
+                <div class="power-value" id="solar-power">--</div>
+                <div class="power-unit">Watts</div>
+                <div class="power-trend" id="solar-trend">
+                    <i class="fas fa-minus"></i> Stable
+                </div>
             </div>
-            <div class="power-label">Battery Power</div>
-            <div class="power-value" id="battery-power">--</div>
-            <div class="power-unit">Watts</div>
-            <div class="power-trend" id="battery-trend">
-                <i class="fas fa-minus"></i> Stable
+
+            <!-- Battery Power -->
+            <div class="power-card battery">
+                <div class="power-icon">
+                    <i class="fas fa-battery-three-quarters"></i>
+                </div>
+                <div class="power-label">Battery Power</div>
+                <div class="power-value" id="battery-power">--</div>
+                <div class="power-unit">Watts</div>
+                <div class="power-trend" id="battery-trend">
+                    <i class="fas fa-minus"></i> Stable
+                </div>
+            </div>
+
+            <!-- Load Power -->
+            <div class="power-card load">
+                <div class="power-icon">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="power-label">Load Power</div>
+                <div class="power-value" id="load-power">--</div>
+                <div class="power-unit">Watts</div>
+                <div class="power-trend" id="load-trend">
+                    <i class="fas fa-minus"></i> Stable
+                </div>
+            </div>
+
+            <!-- Grid Power -->
+            <div class="power-card grid">
+                <div class="power-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="power-label">Grid Power</div>
+                <div class="power-value" id="grid-power">--</div>
+                <div class="power-unit">Watts</div>
+                <div class="power-trend" id="grid-trend">
+                    <i class="fas fa-minus"></i> Stable
+                </div>
             </div>
         </div>
 
-        <!-- Load Power -->
-        <div class="power-card load">
-            <div class="power-icon">
-                <i class="fas fa-home"></i>
+        <!-- System Statistics -->
+        <div class="system-stats">
+            <!-- Battery Status -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-battery-half"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Battery Status</div>
+                    <div class="stat-value" id="battery-soc">--%</div>
+                </div>
             </div>
-            <div class="power-label">Load Power</div>
-            <div class="power-value" id="load-power">--</div>
-            <div class="power-unit">Watts</div>
-            <div class="power-trend" id="load-trend">
-                <i class="fas fa-minus"></i> Stable
-            </div>
-        </div>
 
-        <!-- Grid Power -->
-        <div class="power-card grid">
-            <div class="power-icon">
-                <i class="fas fa-bolt"></i>
+            <!-- System Efficiency -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">System Efficiency</div>
+                    <div class="stat-value" id="system-efficiency">--%</div>
+                </div>
             </div>
-            <div class="power-label">Grid Power</div>
-            <div class="power-value" id="grid-power">--</div>
-            <div class="power-unit">Watts</div>
-            <div class="power-trend" id="grid-trend">
-                <i class="fas fa-minus"></i> Stable
-            </div>
-        </div>
-    </div>
 
-    <!-- System Statistics -->
-    <div class="system-stats">
-        <!-- Battery Status -->
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-battery-half"></i>
+            <!-- Temperature -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-thermometer-half"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Temperature</div>
+                    <div class="stat-value" id="temperature">--°C</div>
+                </div>
             </div>
-            <div class="stat-content">
-                <div class="stat-label">Battery Status</div>
-                <div class="stat-value" id="battery-soc">--%</div>
-            </div>
-        </div>
 
-        <!-- System Efficiency -->
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-percentage"></i>
-            </div>
-            <div class="stat-content">
-                <div class="stat-label">System Efficiency</div>
-                <div class="stat-value" id="system-efficiency">--%</div>
-            </div>
-        </div>
-
-        <!-- Temperature -->
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-thermometer-half"></i>
-            </div>
-            <div class="stat-content">
-                <div class="stat-label">Temperature</div>
-                <div class="stat-value" id="temperature">--°C</div>
-            </div>
-        </div>
-
-        <!-- Battery Voltage -->
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-bolt"></i>
-            </div>
-            <div class="stat-content">
-                <div class="stat-label">Battery Voltage</div>
-                <div class="stat-value" id="battery-voltage">--V</div>
+            <!-- Battery Voltage -->
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-label">Battery Voltage</div>
+                    <div class="stat-value" id="battery-voltage">--V</div>
+                </div>
             </div>
         </div>
     </div>

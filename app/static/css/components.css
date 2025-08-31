@@ -273,7 +273,8 @@
 /* Page Layouts */
 .control-page,
 .settings-page,
-.charts-page {
+.charts-page,
+.dashboard-page {
     padding: var(--spacing-3xl) 0;
 }
 
