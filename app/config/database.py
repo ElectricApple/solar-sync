@@ -1,5 +1,5 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy import text
 from app.config.settings import settings
 import logging
 
@@ -16,58 +16,52 @@ engine = create_async_engine(
     pool_recycle=300,
 )
 
-# Create session factory
+# Create async session factory
 AsyncSessionLocal = async_sessionmaker(
     engine,
     class_=AsyncSession,
     expire_on_commit=False,
 )
 
-# Base class for models
-Base = declarative_base()
-
-
-async def get_db():
+async def get_db() -> AsyncSession:
     """Dependency to get database session"""
     async with AsyncSessionLocal() as session:
         try:
             yield session
-        except Exception as e:
-            logger.error(f"Database session error: {e}")
-            await session.rollback()
-            raise
         finally:
             await session.close()
 
-
 async def init_db():
     """Initialize database tables"""
-    from app.database.models import SystemConfig, EnergyData, DeviceRegistry
+    from app.database.models import Base, SystemConfig, EnergyData, DeviceRegistry, SystemEvent, HourlySummary, DailySummary
     
     async with engine.begin() as conn:
         # Create all tables
         await conn.run_sync(Base.metadata.create_all)
         
-        # Insert default system configuration
+        # Insert default configuration
         await conn.run_sync(_insert_default_config)
-
 
 def _insert_default_config(connection):
     """Insert default system configuration"""
-    from app.database.models import SystemConfig
-    from sqlalchemy import text
-    
     # Check if config already exists
     result = connection.execute(
         text("SELECT COUNT(*) FROM system_config WHERE key = 'system_name'")
     ).scalar()
     
     if result == 0:
+        # Insert default configuration
         default_configs = [
-            ("system_name", settings.system_name, "System display name"),
-            ("system_version", settings.system_version, "System version"),
-            ("simulate_hardware", str(settings.simulate_hardware), "Hardware simulation mode"),
-            ("websocket_interval", str(settings.websocket_update_interval), "WebSocket update interval"),
+            ('system_name', 'Solar Sync', 'System display name'),
+            ('system_version', '2.0.0', 'System version'),
+            ('data_retention_days', '90', 'Days to retain historical data'),
+            ('chart_update_interval', '5', 'Chart update interval in seconds'),
+            ('websocket_enabled', 'true', 'Enable WebSocket real-time updates'),
+            ('simulation_enabled', 'true', 'Enable data simulation for development'),
+            ('export_enabled', 'true', 'Enable data export functionality'),
+            ('max_chart_points', '1000', 'Maximum data points for charts'),
+            ('timezone', 'UTC', 'System timezone'),
+            ('units', 'metric', 'Measurement units (metric/imperial)'),
         ]
         
         for key, value, description in default_configs:
@@ -77,3 +71,4 @@ def _insert_default_config(connection):
             )
         
         connection.commit()
+        logger.info("Default system configuration inserted")
